@@ -1,24 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>Homepage.html</title>
   <script src="http://code.jquery.com/jquery.min.js"></script>
   <script src="http://natur-kultur.eu/phpjs.php/isset/in_array"></script>
   <script type="text/javascript">
   $(window).on("DOMContentLoaded",function(){
     window.tb = new ToolBox();
     tb.g("g",tb.g);
-    g("scripts",{});
   });
   function ToolBox() {
+    this.includes = {};
     this.g = this.globalize = function(){return window[arguments[0]] = arguments[1]};
-    this.ls = this.loadScript = function(url){
-      if(!isset(url)){console.error("url is undefined",arguments.calee.caller);return 0}
-      if(in_array(url,Object.keys(scripts))){console.error("script ("+url+") is already loaded",arguments.calee.caller);return 0}
-      var x = document.createElement("script");
-      x.type = "text/javascript";
-      x.src = url;
-      document.body.appendChild(x);
-      scripts[url] = x;
+    this.n = this.newElement = function(){return document.createElement(arguments[0])};
+    this.t = this.newTextNode = function(){return document.creteTextNode(arguments[0])};
+    this.e = this.getFileExtension = function(){return arguments[0].split(".").slice(-1)};
+    this.v = {"h": document.getElementsByTagName("head")[0]};
+    this.erj = this.evalRemoteJS = function(){jQuery.ajax(arguments[0])};
+    this.lrc = this.loadRemoteCSS = function(){
+      var el = this.n("link");
+      el.rel = "stylesheet";
+      el.type = "text/css";
+      el.href = url;
+      this.v.h.appendChild(el);
+      this.includes[url] = el;
+      return el;
+    }
+    HTMLElement.prototype.history = [];
+    HTMLElement.prototype.history.__proto__.current = 0;
+    HTMLElement.prototype.load = function (url){
+      var elem = this;
+      elem.history[elem.history.current] = elem.innerHTML;
+      elem.history.current++;
+      elem.innerHTML = "Loading...";
+      if(url.indexOf("<") == -1)
+      {
+        jQuery.ajax({
+                    url: url,
+                    success: function (result) {
+                                                elem.innerHTML = result;
+                                               },
+                    async: false
+                  });
+      }
+      else {
+        elem.innerHTML = url;
+      }
+    }
+    HTMLElement.prototype.back = function()
+    {
+      this.innerHTML = this.history[this.history.current-1];
+    }
+    this.l = this.load = function(url){
+      if(!isset(url)){console.error("url is undefined",arguments.calee.caller);return -1}
+      if(in_array(url,Object.keys(this.includes))){console.error(url+" is already loaded",arguments.calee.caller);return 0}
+      var ext = this.e(url);
+      if(ext == "js")
+      {
+        this.erj(url);
+      }
+      else if(ext == "css")
+      {
+        this.lrc(url);
+      }
+      else if(ext == "json")
+      {
+
+      }
     };
     return this;
   }
