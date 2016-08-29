@@ -17,39 +17,17 @@
     this.e = this.getFileExtension = function(){return arguments[0].split(".").slice(-1)};
     this.v = {"h": document.getElementsByTagName("head")[0]};
     this.erj = this.evalRemoteJS = function(){jQuery.ajax(arguments[0])};
-    this.lrc = this.loadRemoteCSS = function(){
+    this.lrc = this.loadRemoteCSS = function(url){
       var el = this.n("link");
       el.rel = "stylesheet";
       el.type = "text/css";
       el.href = url;
       this.v.h.appendChild(el);
+      el.__proto__.url = url;
+      el.__proto__.tb = this;
+      el.__proto__.destroy = function(){delete this.tb.includes[this.url];$(this).remove()}
       this.includes[url] = el;
       return el;
-    }
-    HTMLElement.prototype.history = [];
-    HTMLElement.prototype.history.__proto__.current = 0;
-    HTMLElement.prototype.load = function (url){
-      var elem = this;
-      elem.history[elem.history.current] = elem.innerHTML;
-      elem.history.current++;
-      elem.innerHTML = "Loading...";
-      if(url.indexOf("<") == -1)
-      {
-        jQuery.ajax({
-                    url: url,
-                    success: function (result) {
-                                                elem.innerHTML = result;
-                                               },
-                    async: false
-                  });
-      }
-      else {
-        elem.innerHTML = url;
-      }
-    }
-    HTMLElement.prototype.back = function()
-    {
-      this.innerHTML = this.history[this.history.current-1];
     }
     this.l = this.load = function(url){
       if(!isset(url)){console.error("url is undefined",arguments.calee.caller);return -1}
@@ -61,7 +39,7 @@
       }
       else if(ext == "css")
       {
-        this.lrc(url);
+        return this.lrc(url);
       }
       else if(ext == "json")
       {
